@@ -112,7 +112,7 @@ Output language: `--lang en|ko`, else `TALLYCHECK_LANG`, else `LC_ALL` / `LC_MES
 $ python3 skills/tallycheck/scripts/tallycheck.py samples/units.md --format json --lang en
 {
   "tool": "tallycheck",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "files": ["samples/units.md"],
   "summary": { "checked": 5, "ok": 4, "mismatches": 1, "skipped": 0 },
   "findings": [
