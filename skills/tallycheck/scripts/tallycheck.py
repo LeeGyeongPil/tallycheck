@@ -22,7 +22,7 @@ from dataclasses import dataclass
 from decimal import ROUND_HALF_UP, Decimal, getcontext
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
-__version__ = "0.1.3"
+__version__ = "0.1.4"
 
 getcontext().prec = 50
 
@@ -177,18 +177,18 @@ MESSAGES: Dict[str, Dict[str, str]] = {
         "err.bad_data_reason_json": "객체 배열이거나 {{\"records\": [...]}} 형태여야 합니다",
         "err.bad_data_reason_number": "{field} 열에 숫자가 아닌 값 {value!r} 이(가) 있습니다",
         "msg.ok": "재계산값 {exact}; {stated} 은(는) 일치합니다.",
-        "msg.total_row": "{label} / {column}: 표기 {stated}, 위 행의 합은 {exact} 입니다({expected} 로 고치세요).",
-        "msg.total_column": "{label} / {column}: 표기 {stated}, 같은 행 다른 열의 합은 {exact} 입니다({expected} 로 고치세요).",
+        "msg.total_row": "{label} / {column}: 표기 {stated}, 위 행의 합은 {exact} 입니다(고칠 값: {expected}).",
+        "msg.total_column": "{label} / {column}: 표기 {stated}, 같은 행 다른 열의 합은 {exact} 입니다(고칠 값: {expected}).",
         "msg.percent_sum": (
             "{column}: 구성비 합이 {stated} 로, 반올림을 감안해도 100% 가 될 수 없습니다"
             "(합이 {expected} 가 되도록 고치세요)."
         ),
-        "msg.share_vs_value": "{label} / {column}: 표기 {stated}, 값/합계로 계산하면 {exact} 입니다({expected} 로 고치세요).",
-        "msg.mean_row": "{label} / {column}: 표기 {stated}, 위 행의 평균은 {exact} 입니다({expected} 로 고치세요).",
-        "msg.growth_rate": "'{text}': 표기 {stated}, {a} 에서 {b} 로의 증감률은 {exact}% 입니다({expected} 로 고치세요).{dir_hint}",
-        "msg.pp_change": "'{text}': 표기 {stated}, {a} 에서 {b} 로의 차이는 {exact} 포인트입니다({expected} 로 고치세요).{dir_hint}",
-        "msg.direction_mismatch": "'{text}': 문장은 {said}라고 썼지만 {a} 에서 {b} 로는 {actual}입니다({expected}). 방향어를 고치세요(크기 {stated} 는 맞습니다).",
-        "msg.direction_hint": " 방향어도 틀렸습니다: {a} 에서 {b} 로는 {said}가 아니라 {actual}입니다.",
+        "msg.share_vs_value": "{label} / {column}: 표기 {stated}, 값/합계로 계산하면 {exact} 입니다(고칠 값: {expected}).",
+        "msg.mean_row": "{label} / {column}: 표기 {stated}, 위 행의 평균은 {exact} 입니다(고칠 값: {expected}).",
+        "msg.growth_rate": "'{text}': 표기 {stated}, {a} → {b} 증감률은 {exact}%입니다(고칠 값: {expected}).{dir_hint}",
+        "msg.pp_change": "'{text}': 표기 {stated}, {a} → {b} 차이는 {exact} 포인트입니다(고칠 값: {expected}).{dir_hint}",
+        "msg.direction_mismatch": "'{text}': 문장은 {said}라고 썼지만 {a} → {b} 변화는 {actual}입니다({expected}). 방향어를 고치세요(크기 {stated} 는 맞습니다).",
+        "msg.direction_hint": " 방향어도 틀렸습니다: {a} → {b} 변화는 {said}가 아니라 {actual}입니다.",
         "dir.up": "증가",
         "dir.down": "감소",
         "msg.unit_confusion": (
@@ -199,7 +199,7 @@ MESSAGES: Dict[str, Dict[str, str]] = {
             "'{text}': {stated} 은(는) %p 차이({expected})가 아니라 상대 증감률과 같습니다. "
             "{alt} 를 뜻한 것 아닌가요?"
         ),
-        "msg.source": "{label} / {column}: 표기 {stated}, 원자료로 계산하면 {exact} 입니다({expected} 로 고치세요).",
+        "msg.source": "{label} / {column}: 표기 {stated}, 원자료로 계산하면 {exact} 입니다(고칠 값: {expected}).",
         "md.summary": "확인 {checked}개: 일치 {ok}, 불일치 {mismatches}, 건너뜀 {skipped}.",
         "md.no_mismatch": "불일치 없음 ({checked}개 확인).",
         "md.no_claims": "확인할 수치 주장을 찾지 못했습니다.",

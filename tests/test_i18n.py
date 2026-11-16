@@ -98,3 +98,16 @@ def test_skipped_reasons_are_localized(cli, tmp_path):
     assert "숫자 표기가 모호함" in cli(str(path), "--lang", "ko").stdout
     skipped = load_json(cli(str(path), "--format", "json"))["skipped"]
     assert skipped == [{"file": str(path), "line": 3, "text": "1.234,56", "reason": "ambiguous_number"}]
+
+
+def test_korean_messages_have_no_fixed_particle_after_values(cli, tmp_path):
+    # 받침 있는 값(110억)·숫자(110) 뒤에 조사를 고정으로 붙이지 않는다.
+    f = tmp_path / "ko.md"
+    f.write_text("매출은 100억 원에서 110억 원으로 10% 감소했다.\n"
+                 "점유율은 100에서 110으로 20% 늘었다.\n", encoding="utf-8")
+    out = cli(str(f), "--lang", "ko", "--format", "json").stdout
+    messages = [x["message"] for x in json.loads(out)["findings"]]
+    assert len(messages) >= 2
+    for m in messages:
+        for bad in (" 로의", " 로는", " 로 고치세요"):
+            assert bad not in m, m
