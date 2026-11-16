@@ -1,0 +1,12 @@
+{
+  "name": "tallycheck-skill",
+  "owner": { "name": "LeeGyeongPil" },
+  "description": "Recompute and verify the numbers in generated markdown reports.",
+  "plugins": [
+    {
+      "name": "tallycheck",
+      "source": "./",
+      "description": "Recompute table totals, shares, averages, growth rates and percentage points in markdown reports, and reconcile them with CSV/JSON data."
+    }
+  ]
+}
