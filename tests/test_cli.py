@@ -12,7 +12,7 @@ def test_q3_json_exit_1_and_ten_mismatches():
     p = run_cli(Q3, "--format", "json")
     assert p.returncode == 1
     data = load_json(p)
-    assert data["tool"] == "tallycheck" and data["version"] == "0.1.1"
+    assert data["tool"] == "tallycheck" and data["version"] == "0.1.2"
     assert data["summary"] == {"checked": 18, "ok": 8, "mismatches": 10, "skipped": 0}
     bad = {(f["line"], f["check"]): f for f in data["findings"] if f["status"] == "mismatch"}
     assert {k: v["expected"] for k, v in bad.items()} == {
@@ -242,7 +242,7 @@ def test_report_with_bom_is_read(tmp_path):
 
 def test_version_flag():
     p = run_cli("--version")
-    assert p.returncode == 0 and "tallycheck 0.1.1" in p.stdout
+    assert p.returncode == 0 and "tallycheck 0.1.2" in p.stdout
 
 
 def test_errors_leave_no_traceback():

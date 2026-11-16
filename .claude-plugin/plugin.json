@@ -1,6 +1,6 @@
 {
   "name": "tallycheck",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Agent skill that recomputes the numbers in markdown reports (totals, shares, averages, growth rates, percentage points) with rounding-aware interval arithmetic and reconciles tables with CSV/JSON source data.",
   "author": { "name": "LeeGyeongPil" },
   "license": "MIT",
