@@ -3,6 +3,11 @@
 All notable changes to this project are documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [0.1.3] - 2026-11-17
+
+### Fixed
+- A direction word that contradicts the real change (for example "fell 10% from 100 to 110", "100억 원에서 110억 원으로 10% 감소") now reports a signed Expected (`+10%`, `+2%p`) and a message that tells you to fix the direction word, instead of an Expected identical to the stated value. Verdicts and exit codes are unchanged.
+
 ## [0.1.2] - 2026-11-16
 
 ### Changed

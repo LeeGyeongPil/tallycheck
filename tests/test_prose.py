@@ -124,3 +124,28 @@ def test_findings_are_sorted_by_line(check):
 
 def test_year_ranges_are_not_measurements(check):
     assert check("Growth continued from 2021 to 2023, up 5%.\n").findings == []
+
+
+def test_wrong_direction_word_is_reported_with_signed_expected_en(check):
+    f = one(check, "Revenue fell 10% from 100 to 110.\n")
+    assert (f["check"], f["status"], f["stated"], f["expected"]) == ("growth_rate", "mismatch", "10%", "+10%")
+    assert "direction" in f["message"] and "increase" in f["message"]
+    f = one(check, "Revenue rose 9% from 110 to 100.\n")
+    assert f["expected"] == "-9%" and "decrease" in f["message"]
+
+
+def test_wrong_direction_word_is_reported_ko(check):
+    f = one(check, "매출은 100억 원에서 110억 원으로 10% 감소했다.\n", lang="ko")
+    assert f["status"] == "mismatch" and f["expected"] != f["stated"] and f["expected"] == "+10%"
+    assert "방향어" in f["message"] and "증가" in f["message"]
+
+
+def test_wrong_direction_word_pp_change(check):
+    f = one(check, "Share fell 2%p from 10% to 12%.\n")
+    assert (f["check"], f["stated"], f["expected"]) == ("pp_change", "2%p", "+2%p")
+    assert "direction" in f["message"]
+
+
+def test_wrong_direction_and_wrong_size_adds_hint(check):
+    f = one(check, "Revenue fell 5% from 100 to 110.\n")
+    assert f["expected"] == "+10%" and "also wrong" in f["message"] and "(write +10%)" in f["message"]

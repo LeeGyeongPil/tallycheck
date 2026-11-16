@@ -22,7 +22,7 @@ from dataclasses import dataclass
 from decimal import ROUND_HALF_UP, Decimal, getcontext
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
-__version__ = "0.1.2"
+__version__ = "0.1.3"
 
 getcontext().prec = 50
 
@@ -98,8 +98,12 @@ MESSAGES: Dict[str, Dict[str, str]] = {
         ),
         "msg.share_vs_value": "{label} / {column}: stated {stated}, but value / total gives {exact} (write {expected}).",
         "msg.mean_row": "{label} / {column}: stated {stated}, but the average of the rows is {exact} (write {expected}).",
-        "msg.growth_rate": "'{text}': stated {stated}, but going from {a} to {b} is {exact}% (write {expected}).",
-        "msg.pp_change": "'{text}': stated {stated}, but going from {a} to {b} is {exact} points (write {expected}).",
+        "msg.growth_rate": "'{text}': stated {stated}, but going from {a} to {b} is {exact}% (write {expected}).{dir_hint}",
+        "msg.pp_change": "'{text}': stated {stated}, but going from {a} to {b} is {exact} points (write {expected}).{dir_hint}",
+        "msg.direction_mismatch": "'{text}': the sentence says {said}, but going from {a} to {b} is an {actual} ({expected}); fix the direction word (the size {stated} is right).",
+        "msg.direction_hint": " The direction word is also wrong: {a} to {b} is an {actual}, not a {said}.",
+        "dir.up": "increase",
+        "dir.down": "decrease",
         "msg.unit_confusion": (
             "'{text}': {stated} is not the relative change ({expected}); it matches the "
             "percentage-point difference. Did you mean {alt}?"
@@ -181,8 +185,12 @@ MESSAGES: Dict[str, Dict[str, str]] = {
         ),
         "msg.share_vs_value": "{label} / {column}: 표기 {stated}, 값/합계로 계산하면 {exact} 입니다({expected} 로 고치세요).",
         "msg.mean_row": "{label} / {column}: 표기 {stated}, 위 행의 평균은 {exact} 입니다({expected} 로 고치세요).",
-        "msg.growth_rate": "'{text}': 표기 {stated}, {a} 에서 {b} 로의 증감률은 {exact}% 입니다({expected} 로 고치세요).",
-        "msg.pp_change": "'{text}': 표기 {stated}, {a} 에서 {b} 로의 차이는 {exact} 포인트입니다({expected} 로 고치세요).",
+        "msg.growth_rate": "'{text}': 표기 {stated}, {a} 에서 {b} 로의 증감률은 {exact}% 입니다({expected} 로 고치세요).{dir_hint}",
+        "msg.pp_change": "'{text}': 표기 {stated}, {a} 에서 {b} 로의 차이는 {exact} 포인트입니다({expected} 로 고치세요).{dir_hint}",
+        "msg.direction_mismatch": "'{text}': 문장은 {said}라고 썼지만 {a} 에서 {b} 로는 {actual}입니다({expected}). 방향어를 고치세요(크기 {stated} 는 맞습니다).",
+        "msg.direction_hint": " 방향어도 틀렸습니다: {a} 에서 {b} 로는 {said}가 아니라 {actual}입니다.",
+        "dir.up": "증가",
+        "dir.down": "감소",
         "msg.unit_confusion": (
             "'{text}': {stated} 은(는) 상대 증감률({expected})이 아니라 %p 차이와 같습니다. "
             "{alt} 를 뜻한 것 아닌가요?"
@@ -776,6 +784,8 @@ def _check_claim(ctx: Ctx, lineno: int, line: str, m: "re.Match[str]", cs: int, 
     if approx:
         c_lo, c_hi = c_lo * Decimal("0.95"), c_hi * Decimal("1.05")
 
+    a_txt, b_txt = m.group("a").strip(), m.group("b").strip()
+    common = dict(line=lineno, stated=stated, text=m.group(0).strip(), a=a_txt, b=b_txt)
     pct_ctx = a.kind == "pct" and b.kind == "pct"
     rel = ratio_interval(b.lo * 100, b.hi * 100, a.lo, a.hi)
     rel_exact = (b.value / a.value - 1) * 100
@@ -785,7 +795,7 @@ def _check_claim(ctx: Ctx, lineno: int, line: str, m: "re.Match[str]", cs: int, 
     pp_iv = (b.lo - a.hi, b.hi - a.lo)
     pp_exact = b.value - a.value
 
-    def matches(iv: Optional[Tuple[Decimal, Decimal]]) -> bool:
+    def matches(iv: Optional[Tuple[Decimal, Decimal]], flip: bool = False) -> bool:
         if iv is None:
             return False
         lo, hi = iv
@@ -795,15 +805,40 @@ def _check_claim(ctx: Ctx, lineno: int, line: str, m: "re.Match[str]", cs: int, 
             elif hi < 0:
                 lo, hi = -hi, -lo
             return overlaps(lo, hi, c_lo, c_hi)
-        s_lo, s_hi = (c_lo, c_hi) if sign > 0 else (-c_hi, -c_lo)
+        use = -sign if flip else sign
+        s_lo, s_hi = (c_lo, c_hi) if use > 0 else (-c_hi, -c_lo)
         return overlaps(lo, hi, s_lo, s_hi)
 
-    def shown(exact: Decimal, suffix: str) -> str:
-        value = abs(exact) if neutral or exact * sign >= 0 else exact
-        return render_like(value, dataclasses.replace(claim, kind="plain"), unit_text=suffix)
+    def wrong_direction(exact: Decimal) -> bool:
+        # the sentence names a direction (up/down or a signed claim) that contradicts the real change
+        return not neutral and exact * sign < 0
 
-    a_txt, b_txt = m.group("a").strip(), m.group("b").strip()
-    common = dict(line=lineno, stated=stated, text=m.group(0).strip(), a=a_txt, b=b_txt)
+    def shown(exact: Decimal, suffix: str) -> str:
+        if neutral or exact * sign >= 0:
+            return render_like(abs(exact), dataclasses.replace(claim, kind="plain"), unit_text=suffix)
+        # opposite direction: always carry an explicit sign so Expected differs from the stated value
+        text = render_like(abs(exact), dataclasses.replace(claim, kind="plain"), unit_text=suffix)
+        return ("+" if exact > 0 else "-") + text
+
+    def direction_fields(exact: Decimal) -> dict:
+        said = ctx.t("dir.down" if sign < 0 else "dir.up")
+        actual = ctx.t("dir.up" if exact > 0 else "dir.down")
+        return dict(said=said, actual=actual)
+
+    def failure(check: str, exact: Decimal, iv: Tuple[Decimal, Decimal], suffix: str, **extra: Any) -> None:
+        # a wrong direction word is reported separately from (or on top of) a wrong size
+        fields = dict(common)
+        fields["dir_hint"] = ""
+        if wrong_direction(exact):
+            d = direction_fields(exact)
+            if matches(iv, flip=True):
+                ctx.add(check=check, ok=False, expected=shown(exact, suffix), exact=exact, interval=iv,
+                        message_key="msg.direction_mismatch", **d, **fields)
+                return
+            fields["dir_hint"] = ctx.t("msg.direction_hint", a=a_txt, b=b_txt, **d)
+        ctx.add(check=check, ok=False, expected=shown(exact, suffix), exact=exact, interval=iv,
+                **fields, **extra)
+
     if is_pp:
         if matches(pp_iv):
             ctx.add(check="pp_change", ok=True, expected=shown(pp_exact, unit_text), exact=pp_exact,
@@ -813,8 +848,7 @@ def _check_claim(ctx: Ctx, lineno: int, line: str, m: "re.Match[str]", cs: int, 
             ctx.add(check="unit_confusion", ok=False, expected=shown(pp_exact, unit_text), exact=pp_exact,
                     interval=pp_iv, message_key="msg.unit_confusion_pp", alt=alt, **common)
         else:
-            ctx.add(check="pp_change", ok=False, expected=shown(pp_exact, unit_text), exact=pp_exact,
-                    interval=pp_iv, **common)
+            failure("pp_change", pp_exact, pp_iv, unit_text)
         return
     if rel is None:
         return
@@ -826,8 +860,7 @@ def _check_claim(ctx: Ctx, lineno: int, line: str, m: "re.Match[str]", cs: int, 
         ctx.add(check="unit_confusion", ok=False, expected=shown(rel_exact, "%"), exact=rel_exact,
                 interval=rel, alt=alt, **common)
     else:
-        ctx.add(check="growth_rate", ok=False, expected=shown(rel_exact, "%"), exact=rel_exact,
-                interval=rel, **common)
+        failure("growth_rate", rel_exact, rel, "%")
 
 
 # --------------------------------------------------------------------------
