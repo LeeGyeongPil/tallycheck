@@ -151,6 +151,25 @@ def test_skill_description_covers_missed_trigger_phrasings():
         assert phrase in desc, phrase
 
 
+def test_skill_description_covers_self_generated_report_and_fix_requests():
+    """Regression (round 4): on opus, trigger-08 ("numeric sanity check on the report you just generated")
+    and trigger-12 ("방금 만든 월간 리포트에서 숫자 틀린 곳 찾아서 고쳐 줘") did not fire, because the
+    description only spoke of verifying text, not of the assistant's own report or of fixing wrong numbers."""
+    text = (ROOT / "skills" / "tallycheck" / "SKILL.md").read_text(encoding="utf-8")
+    desc = re.search(r"^description: (.*)$", text, re.M).group(1)
+    for phrase in ("also one the assistant just generated", "numeric sanity check", "a report you just wrote",
+                   "find and fix wrong numbers", "then guides fixing the wrong cells"):
+        assert phrase in desc, phrase
+    # 고치기 요청까지 넓힌 만큼, 글자 교정·표 서식 요청(notrigger-02·03)은 명시적으로 제외한다.
+    for phrase in ("proofreading", "table formatting", "Excel formulas", "fact-checking against outside sources"):
+        assert phrase in desc, phrase
+    # 평가 질의 문장을 그대로 베끼지 않는다(말투만 포괄).
+    for prompt in cases("trigger-") + cases("notrigger-"):
+        assert body(prompt / "prompt.md").strip() not in desc
+    step1 = next(line for line in text.splitlines() if line.startswith("1. "))
+    assert "find that file in the working folder first" in step1
+
+
 def test_skill_md_tells_agent_to_surface_missing_column_error():
     """Regression: task-error-bad-column scored 0.5 because the agent swapped columns silently."""
     text = (ROOT / "skills" / "tallycheck" / "SKILL.md").read_text(encoding="utf-8")
