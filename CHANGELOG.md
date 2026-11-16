@@ -3,6 +3,13 @@
 All notable changes to this project are documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+## [0.1.4] - 2026-11-17
+
+### Fixed
+- Korean (`--lang ko`) messages no longer attach a fixed particle after values ("110억 로의"); they use an arrow form ("100 → 110 증감률은 …") and "(고칠 값: …)" instead.
+
 ## [0.1.3] - 2026-11-17
 
 ### Fixed
