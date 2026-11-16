@@ -143,8 +143,11 @@ def test_skill_description_covers_missed_trigger_phrasings():
     text = (ROOT / "skills" / "tallycheck" / "SKILL.md").read_text(encoding="utf-8")
     desc = re.search(r"^description: (.*)$", text, re.M).group(1)
     assert len(desc) <= 1024 and "<" not in desc and ">" not in desc
+    assert desc.startswith("Checks numbers already written")
     for phrase in ("Total, Subtotal or Average row matches the rows above it", "pasted into the chat",
-                   "Use when", "Not for drawing charts or plots", "computing new totals or statistics from raw data"):
+                   "Use when", "Checks numbers already written", "It only verifies existing text",
+                   "not for making charts or visualizations from data",
+                   "computing new totals or statistics from raw data"):
         assert phrase in desc, phrase
 
 
@@ -162,3 +165,45 @@ def test_skill_md_tells_agent_to_surface_missing_column_error():
 def test_skill_md_mentions_out_never_overwrites_inputs():
     text = (ROOT / "skills" / "tallycheck" / "SKILL.md").read_text(encoding="utf-8")
     assert "refuses an `--out` path that is the report or the data file" in text
+
+
+def test_not_fired_graders_scoped_to_tallycheck():
+    """Regression (v2): an unscoped not-fired grader counted any Skill call (e.g. a charting skill) as a misfire."""
+    reference = front(cases("trigger-")[0] / "graders" / "skill-fired.md")["input_match"]
+    for case in cases("notrigger-"):
+        g = front(case / "graders" / "skill-not-fired.md")
+        assert g["tool"] == "Skill" and g["max"] == "0"
+        pattern = g["input_match"].strip("'")
+        assert re.search(pattern, '{"skill": "tallycheck:tallycheck"}')
+        assert re.search(pattern, '{"skill": "tallycheck"}')
+        assert not re.search(pattern, '{"skill": "data-viz"}')
+        assert g["input_match"] == reference
+
+
+def test_skill_md_saves_result_with_script_out():
+    """Regression (v2): task-ko-growth scored 0.25 when the agent wrote result.md itself."""
+    text = (ROOT / "skills" / "tallycheck" / "SKILL.md").read_text(encoding="utf-8")
+    assert "create that file with the script itself" in text
+    assert "Do not write, rewrite, translate, filter or summarize that file yourself" in text
+    assert "even when only one kind of number was asked about" in text
+    assert "`python3 scripts/tallycheck.py q3_report.md --lang ko --out result.md`" in text
+    step4 = next(line for line in text.splitlines() if line.startswith("4. "))
+    assert "chat answer" in step4
+
+
+def test_ko_growth_following_skill_md_on_english_host(tmp_path):
+    """The SKILL.md Korean save command on an English host satisfies every task-ko-growth regex;
+    without --lang the Korean header (value-3) is missing."""
+    fixture = EVALS / "fixtures" / "task-ko-growth" / "q3_report.md"
+    env = clean_env(LANG="en_US.UTF-8", LC_ALL="en_US.UTF-8")
+    out = tmp_path / "result.md"
+    proc = run_cli(str(fixture), "--lang", "ko", "--out", str(out), "--exit-zero", env=env)
+    assert proc.returncode == 0, proc.stderr
+    patterns = {g.name: front(g)["pattern"].strip("'")
+                for g in sorted((EVALS / "task-ko-growth" / "graders").glob("value-*.md"))}
+    assert len(patterns) == 3
+    text = out.read_text(encoding="utf-8")
+    assert all(re.search(p, text) for p in patterns.values())
+    bare = tmp_path / "bare.md"
+    run_cli(str(fixture), "--out", str(bare), "--exit-zero", env=env)
+    assert not re.search(patterns["value-3.md"], bare.read_text(encoding="utf-8"))
