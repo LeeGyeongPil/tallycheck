@@ -111,7 +111,7 @@ $ python3 skills/tallycheck/scripts/tallycheck.py samples/orders_report.md --dat
 $ python3 skills/tallycheck/scripts/tallycheck.py samples/units.md --format json --lang ko
 {
   "tool": "tallycheck",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "files": ["samples/units.md"],
   "summary": { "checked": 5, "ok": 4, "mismatches": 1, "skipped": 0 },
   "findings": [
@@ -149,7 +149,7 @@ $ python3 skills/tallycheck/scripts/tallycheck.py samples/units.md --format json
 | 스킬로 푼 작업 | 6/6 |
 | 스킬 없이 푼 작업(기준선) | 0/6 |
 | 평균 점수 차이(Δ) | +0.73 |
-| 가짜 스크립트를 잡아낸 비율 | 5/6 |
+| 가짜 스크립트를 잡아낸 비율 | 6/6 |
 | Codex CLI | 작업 6/6 통과 · 확인됨 |
 
 Claude Code 2.1.322 · sonnet · 케이스마다 3회 · 2026-11-16 측정 · codex-cli 0.154.0
@@ -173,7 +173,8 @@ flowchart LR
 검사하지 않는 것: PDF, 스프레드시트, HTML 표, 이미지 속 숫자, 의미·인과, 외부 사실, 가중 평균, 복리 성장률.
 
 ## 언제 쓰나
-- 잘 맞는 경우: 에이전트가 쓴 데이터 요약·분석 메모를 넘기기 직전, 또는 보고서 표가 CSV 내보내기와 일치해야 할 때.
+- 잘 맞는 경우: 에이전트가 쓴 데이터 요약·분석 메모를 넘기기 직전, 또는 보고서 표가 CSV 내보내기와 일치해야 할 때, 방금 만든 보고서에서 틀린 숫자를 찾아 고칠 때.
+- 글자 교정이나 표 서식 정리는 대상이 아닙니다. 문장·모양이 아니라 숫자만 검사합니다.
 - 작은 정수는 반올림 구간이 넓어(`2` 두 줄의 합은 3~5 어느 것이든 가능) 짧은 정수 열의 한 군데 오류는 반올림과 구별되지 않습니다.
 - 스프레드시트·차트 제작, 엑셀 수식 수정, 외부 자료 대조 팩트체크에는 다른 도구를 쓰세요. 이 스킬은 글에 이미 있는 숫자만 다시 계산합니다.
 

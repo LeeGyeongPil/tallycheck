@@ -112,7 +112,7 @@ Output language: `--lang en|ko`, else `TALLYCHECK_LANG`, else `LC_ALL` / `LC_MES
 $ python3 skills/tallycheck/scripts/tallycheck.py samples/units.md --format json --lang en
 {
   "tool": "tallycheck",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "files": ["samples/units.md"],
   "summary": { "checked": 5, "ok": 4, "mismatches": 1, "skipped": 0 },
   "findings": [
@@ -150,7 +150,7 @@ $ python3 skills/tallycheck/scripts/tallycheck.py samples/units.md --format json
 | Tasks solved with the skill | 6/6 |
 | Tasks solved without it (baseline) | 0/6 |
 | Mean score gain (Δ) | +0.73 |
-| Tasks that catch a broken script | 5/6 |
+| Tasks that catch a broken script | 6/6 |
 | Codex CLI | 6/6 tasks · verified |
 
 Measured 2026-11-16 with Claude Code 2.1.322 · sonnet · 3 runs per case · codex-cli 0.154.0
@@ -174,7 +174,8 @@ The agent loads `SKILL.md`, runs the script on the report (and optionally a data
 Not checked: PDF, spreadsheets, HTML tables, numbers in images, meaning or causality, outside facts, weighted averages, compound growth rates.
 
 ## When to use it
-- Good fit: a data summary or analysis memo written by an agent, right before you hand it over; a report table that should match a CSV export.
+- Good fit: a data summary or analysis memo written by an agent, right before you hand it over; a report table that should match a CSV export; a report the assistant just generated, to find and fix wrong numbers in it.
+- Not for proofreading or table formatting: it checks numbers, not wording or layout.
 - Small integers have wide rounding intervals (two rows of `2` can sum to 3 to 5), so a one-off error in a short integer column cannot be told from rounding.
 - For building spreadsheets or charts, fixing Excel formulas, or fact-checking against outside sources, use other tools; this skill only recomputes numbers already in the text.
 

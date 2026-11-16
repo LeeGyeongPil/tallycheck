@@ -3,6 +3,12 @@
 All notable changes to this project are documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [0.1.2] - 2026-11-16
+
+### Changed
+- `SKILL.md` description also covers a report the assistant just generated, "numeric sanity check" requests and requests to find and fix wrong numbers, and now names proofreading and table formatting as out of scope. Step 1 says to locate an earlier generated report before running the script. One regression test was added.
+- Version bumped to 0.1.2 in the package, plugin, script and the CLI version tests.
+
 ## [0.1.1] - 2026-11-16
 
 ### Changed
