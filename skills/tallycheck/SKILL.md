@@ -1,0 +1,20 @@
+---
+name: tallycheck
+description: Recomputes the numbers in a markdown report, memo or pasted table with a bundled script that handles rounding correctly - whether a Total, Subtotal or Average row matches the rows above it, whether shares add up to 100% and equal value / total, and whether growth rates and percentage points are right (English and Korean) - and can reconcile table cells with a CSV or JSON source, reporting the line and value to write. Use when someone asks to check, verify, double-check, audit or sanity-check the figures, totals, averages, percentages or growth rates already written in a report, summary or table, even a small one pasted into the chat, or to match a report's table against its source data (for example "does the Total row match the rows above?", "is the Average row right?", "do these shares add up?", "이 표 합계 맞아?", "이 보고서 숫자 맞는지 검산해 줘"). Not for drawing charts or plots, building spreadsheets or fixing Excel formulas, fact-checking against outside sources, or computing new totals or statistics from raw data.
+license: MIT
+compatibility: Python 3.10+ (standard library only). No network access.
+---
+
+# Recompute the numbers in a report
+
+Models re-check their own arithmetic by eye and fail the same way twice: a share column that sums to 100 is waved through even when single rows are wrong, `18.2%` is accepted for a true `18.36%`, and a legitimate `99.9%` (three times `33.3%`) gets "fixed". The script recomputes every claim with interval arithmetic from the digits actually shown, so the verdict is exact and repeatable.
+
+1. Run `python3 scripts/tallycheck.py REPORT.md --lang en` (the path is relative to this skill's folder; give the report's real path). Always pass `--lang` in the user's language: `--lang en` when they write English, `--lang ko` when they write Korean. Without it the output follows the machine's locale, which may not be the user's language. If the table was pasted into the chat, save it to a `.md` file first. Pass several files to check them together.
+2. To compare table cells with source data add `--data FILE.csv|FILE.json --group COLUMN`, where COLUMN holds the table's row labels. Headers that equal a data column are summed and `Count`/`Orders` headers are counted automatically; otherwise map them: `--col "Orders=count" --col "Amount=sum:amount" --col "Avg amount=mean:amount" --col "Share=share:amount"`.
+3. To keep the result, add `--format json --out result.json` (or `--out result.md`); the script writes the file and prints a one-line summary, and refuses an `--out` path that is the report or the data file. Exit code 0 means no mismatch, 1 means mismatches were found, 2 means the input was wrong.
+4. Report each mismatch as line, check, stated value and the expected value from the output, then fix only those cells and run the script again until it exits 0. The script never edits the report. Lines listed as skipped (for example `1.234,56`) were not judged; tell the user instead of guessing.
+5. If the script says there are no mismatches, say that the numbers are consistent. A total of 99.9% over three rows of 33.3% is rounding, not an error - do not change it.
+6. Map columns exactly as the user named them (for example `--col "Amount=sum:revenue" --lang en` when they say the revenue field), even if you suspect the data has no such column: run the script with the named column and let its error and hint list the available ones, and never substitute a similar column (such as `amount` for `revenue`) on your own.
+7. If the script exits with an error (code 2), quote its error line verbatim in your answer, together with the hint line under it that says how to fix the input. Then tell the user which of the available columns could be meant and ask which to use; do not rerun with another column or report numbers from a different one until they answer.
+
+For the list of checks, how the tolerance is derived, and how rows are recognised (Total, Subtotal, Average, 합계, 소계, 평균), read `references/checks.md` only when a result is surprising or the user asks how a number was judged.

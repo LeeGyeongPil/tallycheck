@@ -1,0 +1,6 @@
+channel,order_id,amount
+Web,1,2.5
+Web,2,2.1
+Store,3,2.4
+Store,4,2.6
+Phone,5,2.2

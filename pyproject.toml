@@ -1,0 +1,17 @@
+[project]
+name = "tallycheck-dev"
+version = "0.1.0"
+description = "Development environment for the tallycheck agent skill (tests only; the skill script has no dependencies)."
+requires-python = ">=3.10"
+license = { text = "MIT" }
+dependencies = []
+
+[dependency-groups]
+dev = ["pytest>=8"]
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
