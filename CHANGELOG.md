@@ -3,6 +3,14 @@
 All notable changes to this project are documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [0.1.1] - 2026-11-16
+
+### Changed
+- `SKILL.md` tells the agent to create saved result files with the script's own `--out` (never rewrite, filter or summarize them), shows the Korean `--lang ko --out` example and keeps the per-mismatch report in the chat answer.
+- `SKILL.md` description leads with "Checks numbers already written" and states it only verifies existing text, so chart and CSV requests do not trigger it.
+- The not-fired eval graders are scoped to tallycheck; three regression tests were added and two updated.
+- README: the evaluation table shows the re-measured results and the "never edited" wording is clearer.
+
 ## [0.1.0] - 2026-11-16
 
 ### Added

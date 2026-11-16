@@ -22,7 +22,7 @@ from dataclasses import dataclass
 from decimal import ROUND_HALF_UP, Decimal, getcontext
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 getcontext().prec = 50
 

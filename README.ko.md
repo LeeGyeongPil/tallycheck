@@ -11,7 +11,7 @@
 - **반올림을 고려한 구간 산술로 재계산합니다.** 보이는 숫자는 마지막 자리 반 단위만큼의 구간으로 봅니다. 그래서 `33.3%` 세 줄에 합계 `99.9%` 는 통과하고, `40.0%` 여야 할 `41.3%` 는 걸립니다.
 - **자주 틀리는 주장을 검사합니다:** 합계·소계 행(이중 계산 없음), 합계 열, 100% 가 되어야 하는 구성비, 구성비 = 값 / 합계, 평균 행, 문장 속 증감률("2,620에서 3,101로 18.2% 증가"), %p, 그리고 % 와 %p 혼동. 영어·한국어 문장과 숫자 표기(`1억 2,000만`, `1.2억`, `k`/`M`)를 이해합니다.
 - **원자료와 대조합니다**(`--data`, `--group`, `--col`): 행 이름별 개수·합계·평균·비중을 CSV 또는 JSON 과 비교합니다.
-- **정직하게 동작합니다:** `1.234,56` 처럼 모호한 숫자는 추측하지 않고 건너뜀으로 표시합니다. 보고서는 직접 고치지 않습니다.
+- **정직하게 동작합니다:** `1.234,56` 처럼 모호한 숫자는 추측하지 않고 건너뜀으로 표시합니다. tallycheck 는 보고서를 읽기만 하고 다시 쓰지 않으며, 저장하는 결과는 스크립트의 `--out` 출력입니다.
 - 표준 라이브러리만 쓰고 네트워크·API 키가 필요 없습니다. 출력은 마크다운 또는 JSON, 종료 코드는 0(일치), 1(불일치), 2(입력 오류)입니다.
 
 ## 설치
@@ -100,6 +100,8 @@ $ python3 skills/tallycheck/scripts/tallycheck.py samples/orders_report.md --dat
 
 옵션: `--format md|json`, `--out 경로`(결과를 파일에 쓰고 한 줄 요약만 출력), `--exit-zero`(불일치가 있어도 종료 코드 0), `--lang en|ko`. 초안 표나 문장을 건너뛰려면 바로 앞 줄에 `<!-- tallycheck:ignore -->` 를 넣습니다.
 
+결과 저장: 에이전트에게 결과를 파일로 저장해 달라고 하면 파일을 직접 쓰지 않고 스크립트의 `--out` 으로 만듭니다(예: `python3 skills/tallycheck/scripts/tallycheck.py samples/q3_report.md --lang ko --out result.md`). 불일치 목록은 채팅 답변에 적습니다.
+
 출력 언어: `--lang en|ko`, 없으면 `TALLYCHECK_LANG`, 그다음 `LC_ALL` / `LC_MESSAGES` / `LANG`(`ko` 로 시작하면 한국어, 아니면 영어). JSON 키와 검사 코드는 언어와 무관합니다.
 
 ## JSON 출력
@@ -109,7 +111,7 @@ $ python3 skills/tallycheck/scripts/tallycheck.py samples/orders_report.md --dat
 $ python3 skills/tallycheck/scripts/tallycheck.py samples/units.md --format json --lang ko
 {
   "tool": "tallycheck",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "files": ["samples/units.md"],
   "summary": { "checked": 5, "ok": 4, "mismatches": 1, "skipped": 0 },
   "findings": [
@@ -143,11 +145,11 @@ $ python3 skills/tallycheck/scripts/tallycheck.py samples/units.md --format json
 | 확인 | 결과 |
 |---|---|
 | 필요할 때 불림 | 12/12 |
-| 필요 없을 때 안 불림 | 9/10 |
+| 필요 없을 때 안 불림 | 10/10 |
 | 스킬로 푼 작업 | 6/6 |
 | 스킬 없이 푼 작업(기준선) | 0/6 |
 | 평균 점수 차이(Δ) | +0.73 |
-| 가짜 스크립트를 잡아낸 비율 | 6/6 |
+| 가짜 스크립트를 잡아낸 비율 | 5/6 |
 | Codex CLI | 작업 6/6 통과 · 확인됨 |
 
 Claude Code 2.1.322 · sonnet · 케이스마다 3회 · 2026-11-16 측정 · codex-cli 0.154.0

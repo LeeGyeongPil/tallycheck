@@ -11,7 +11,7 @@ An agent skill that recomputes the numbers in a markdown report (table totals, s
 - **Recomputes with rounding-aware intervals.** Every shown number stands for half a unit of its last digit in each direction, so three rows of `33.3%` with a total of `99.9%` pass, while a `41.3%` that should be `40.0%` does not.
 - **Checks the usual claims:** Total and Subtotal rows (no double counting), Total columns, shares that must add up to 100%, share = value / total, Average rows, growth rates in sentences ("grew 18.2% from 2,620 to 3,101"), percentage points, and percent vs percentage-point confusion. English and Korean sentences and number styles (`1억 2,000만`, `1.2억`, `k`/`M`) are understood.
 - **Reconciles with source data** (`--data`, `--group`, `--col`): counts, sums, means and shares per row label against a CSV or JSON file.
-- **Stays honest:** ambiguous numbers such as `1.234,56` are listed as skipped, never guessed. The report is never edited.
+- **Stays honest:** ambiguous numbers such as `1.234,56` are listed as skipped, never guessed. tallycheck only reads your report and never rewrites it; saved results come from the script's own `--out`.
 - Standard library only, no network, no API keys. Output is markdown or JSON with exit code 0 (consistent), 1 (mismatches) or 2 (bad input).
 
 ## Install
@@ -101,6 +101,8 @@ Mapped: Orders=count, Amount=sum:amount, Avg amount=mean:amount
 
 Options: `--format md|json`, `--out PATH` (write the result to a file and print one summary line), `--exit-zero` (exit 0 even with mismatches), `--lang en|ko`. To skip a draft table or sentence, put `<!-- tallycheck:ignore -->` on the line before it.
 
+Saving a result: when you ask the agent to save it, it runs the script with `--out` itself (for example `python3 skills/tallycheck/scripts/tallycheck.py samples/q3_report.md --lang ko --out result.md`) instead of writing the file by hand, and lists the mismatches in its chat answer.
+
 Output language: `--lang en|ko`, else `TALLYCHECK_LANG`, else `LC_ALL` / `LC_MESSAGES` / `LANG` (Korean if it starts with `ko`, otherwise English). JSON keys and check codes do not change with the language.
 
 ## JSON output
@@ -110,7 +112,7 @@ Output language: `--lang en|ko`, else `TALLYCHECK_LANG`, else `LC_ALL` / `LC_MES
 $ python3 skills/tallycheck/scripts/tallycheck.py samples/units.md --format json --lang en
 {
   "tool": "tallycheck",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "files": ["samples/units.md"],
   "summary": { "checked": 5, "ok": 4, "mismatches": 1, "skipped": 0 },
   "findings": [
@@ -144,11 +146,11 @@ $ python3 skills/tallycheck/scripts/tallycheck.py samples/units.md --format json
 | Check | Result |
 |---|---|
 | Triggers when it should | 12/12 |
-| Stays quiet when it should not | 9/10 |
+| Stays quiet when it should not | 10/10 |
 | Tasks solved with the skill | 6/6 |
 | Tasks solved without it (baseline) | 0/6 |
 | Mean score gain (Δ) | +0.73 |
-| Tasks that catch a broken script | 6/6 |
+| Tasks that catch a broken script | 5/6 |
 | Codex CLI | 6/6 tasks · verified |
 
 Measured 2026-11-16 with Claude Code 2.1.322 · sonnet · 3 runs per case · codex-cli 0.154.0
