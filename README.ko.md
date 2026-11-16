@@ -152,7 +152,7 @@ $ python3 skills/tallycheck/scripts/tallycheck.py samples/units.md --format json
 | 가짜 스크립트를 잡아낸 비율 | 6/6 |
 | Codex CLI | 작업 6/6 통과 · 확인됨 |
 
-Claude Code 2.1.322 · sonnet · 케이스마다 3회 · 2026-11-16 측정 · codex-cli 0.154.0
+Claude Code 2.1.322 · sonnet · 케이스마다 3회 · 2026-11-17 측정 · codex-cli 0.154.0
 <!-- skill-eval:end -->
 
 ## 동작 방식

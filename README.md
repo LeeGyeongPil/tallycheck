@@ -153,7 +153,7 @@ $ python3 skills/tallycheck/scripts/tallycheck.py samples/units.md --format json
 | Tasks that catch a broken script | 6/6 |
 | Codex CLI | 6/6 tasks · verified |
 
-Measured 2026-11-16 with Claude Code 2.1.322 · sonnet · 3 runs per case · codex-cli 0.154.0
+Measured 2026-11-17 with Claude Code 2.1.322 · sonnet · 3 runs per case · codex-cli 0.154.0
 <!-- skill-eval:end -->
 
 ## How it works
