@@ -48,7 +48,7 @@ Ambiguous separators (`1.234,56`, `12,5`, `1,23,456`) are never guessed: the ite
 
 ## Sentence patterns
 
-Claims are only judged when the sentence names both ends: `X% from A to B`, `from A to B, up X%`, `from A to B (X%)`, `A에서 B로 X%`, `B ... 전 분기 A 대비 X%`. Direction words (up, fell, 증가, 감소) are compared with the real direction; without one the sizes are compared. Sentences with only a percentage are not judged.
+Claims are only judged when the sentence names both ends: `X% from A to B` (also `X percent from A to B`), `from A to B, up X%`, `from A to B, a X% decrease` (noun form after the figures), `from A to B (X%)`, `A에서 B로 X%`, `B ... 전 분기 A 대비 X%`. Direction words (up, fell, 증가, 감소) are compared with the real direction; without one the sizes are compared. Sentences with only a percentage are not judged.
 
 ## Source reconciliation
 

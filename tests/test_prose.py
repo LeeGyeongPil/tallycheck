@@ -149,3 +149,30 @@ def test_wrong_direction_word_pp_change(check):
 def test_wrong_direction_and_wrong_size_adds_hint(check):
     f = one(check, "Revenue fell 5% from 100 to 110.\n")
     assert f["expected"] == "+10%" and "also wrong" in f["message"] and "(write +10%)" in f["message"]
+
+
+def test_percent_word_claim(check):
+    ok = one(check, "Sales rose 50 percent from 1,000 to 1,500.\n")
+    assert (ok["check"], ok["status"], ok["stated"]) == ("growth_rate", "ok", "50 percent")
+    bad = one(check, "Sales rose 40 percent from 1,000 to 1,500.\n")
+    assert (bad["status"], bad["stated"], bad["expected"]) == ("mismatch", "40 percent", "50%")
+
+
+def test_noun_form_after_from_to(check):
+    assert one(check, "Costs dropped from 200 to 100, a 50% decrease.\n")["status"] == "ok"
+    bad = one(check, "Costs dropped from 200 to 100, a 40% decrease.\n")
+    assert (bad["status"], bad["stated"], bad["expected"]) == ("mismatch", "40%", "50%")
+    assert one(check, "Sales went from 100 to 150, an 50% increase.\n")["status"] == "ok"
+    assert one(check, "Sales went from 100 to 150, a 20% rise.\n")["status"] == "mismatch"
+
+
+def test_percent_word_without_both_ends_is_not_judged(check):
+    for text in ("50 percent of users left.\n", "Sales are up 50 percent.\n",
+                 "50 percent of users rose from 1,000 to 1,500.\n",
+                 "Costs fell, a 50% decrease.\n"):
+        assert check(text, "en").findings == [], text
+
+
+def test_percent_points_still_points(check):
+    f = one(check, "Margin rose from 10% to 15%, up 5 percentage points.\n")
+    assert f["status"] == "ok"

@@ -22,7 +22,7 @@ from dataclasses import dataclass
 from decimal import ROUND_HALF_UP, Decimal, getcontext
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
-__version__ = "0.1.4"
+__version__ = "0.1.5"
 
 getcontext().prec = 50
 
@@ -714,7 +714,7 @@ _KO_AMT = rf"(?:{_KO_PART})(?:\s*{_KO_PART})*"
 _AMT = rf"(?:{_KO_AMT}|[$₩€£¥]?{_N}(?:[kKMB](?![A-Za-z]))?)%?"
 _PP = (r"(?:%[pP](?![A-Za-z])|%pt(?![A-Za-z])|%\s?points?(?![A-Za-z])|%포인트|pp(?![A-Za-z])|"
        r"percentage[ -]points?|percent[ -]points?|퍼센트\s?포인트|포인트)")
-_CLAIM = rf"(?P<csign>[-−+])?(?P<cnum>{_N})\s*(?P<cunit>{_PP}|%|퍼센트)"
+_CLAIM = rf"(?P<csign>[-−+])?(?P<cnum>{_N})\s*(?P<cunit>{_PP}|%|퍼센트|percent(?![A-Za-z])(?!\s+of\b))"
 _DIR = (r"up|down|increase|decrease|rise|rose|rising|grew|growth|gain|fall|fell|drop|decline|"
         r"change|higher|lower|lost|loss")
 _PERIOD = r"(?:전\s*분기|전년\s*동기|전년|전월|전주|전일|작년|전기|지난\s*(?:분기|달|해|주))"
@@ -723,6 +723,10 @@ _EN1 = re.compile(rf"{_CLAIM}(?:\s+(?:growth|increase|decrease|decline|change|ri
 _EN2 = re.compile(
     rf"from\s+(?P<a>{_AMT})\s+(?:to|→)\s+(?P<b>{_AMT})"
     rf"(?:\s*[,;]?\s*(?:an?\s+|the\s+)?\b(?:{_DIR})\w*(?:\s+(?:of|by))?\s*|\s*\(\s*){_CLAIM}",
+    re.I)
+_NOUN = r"(?:increase|decrease|decline|drop|rise|gain)"
+_EN3 = re.compile(  # "from A to B, a 50% decrease": the claim comes first, the direction noun after it
+    rf"from\s+(?P<a>{_AMT})\s+(?:to|→)\s+(?P<b>{_AMT})\s*[,;]?\s*(?:an?\s+|the\s+){_CLAIM}\s+{_NOUN}(?![A-Za-z])",
     re.I)
 _KO1 = re.compile(
     rf"(?P<b>{_AMT})\s*원?[^\d\n|]{{0,10}}?{_PERIOD}\s*(?P<a>{_AMT})\s*원?\s*대비\s*(?:약\s*)?{_CLAIM}")
@@ -748,7 +752,7 @@ def check_prose(ctx: Ctx, prose: Sequence[Tuple[int, str]]) -> None:
             ctx.skip(lineno, _AMBIG_SCAN.search(line).group(0), "ambiguous_number")  # type: ignore[union-attr]
             continue
         seen = set()
-        for rx in (_EN1, _EN2, _KO1, _KO2):
+        for rx in (_EN1, _EN2, _EN3, _KO1, _KO2):
             for m in rx.finditer(line):
                 cs, ce = _claim_span(m)
                 if cs in seen:
