@@ -20,7 +20,7 @@ An agent skill that recomputes the numbers in a markdown report (table totals, s
 /plugin marketplace add LeeGyeongPil/tallycheck
 /plugin install tallycheck@tallycheck-skill
 ```
-**Codex CLI and other agents that read the Agent Skills standard** — copy `skills/tallycheck` into the skills folder (for example `.agents/skills/` in a project).
+**Other agents that read the Agent Skills standard** (not verified) — copy `skills/tallycheck` into the skills folder (for example `.agents/skills/` in a project).
 
 Requires Python 3.10 or newer (`python3 --version`). No packages to install.
 
@@ -151,9 +151,9 @@ $ python3 skills/tallycheck/scripts/tallycheck.py samples/units.md --format json
 | Tasks solved without it (baseline) | 0/6 |
 | Mean score gain (Δ) | +0.73 |
 | Tasks that catch a broken script | 6/6 |
-| Codex CLI | 6/6 tasks · verified |
+| Codex CLI | not verified |
 
-Measured 2026-11-17 with Claude Code 2.1.322 · sonnet · 3 runs per case · codex-cli 0.154.0
+Measured 2026-11-26 with Claude Code 2.1.332 · sonnet · 3 runs per case · codex-cli 0.154.0
 <!-- skill-eval:end -->
 
 ## How it works

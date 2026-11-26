@@ -20,7 +20,7 @@
 /plugin marketplace add LeeGyeongPil/tallycheck
 /plugin install tallycheck@tallycheck-skill
 ```
-**Codex CLI 등 Agent Skills 표준을 읽는 에이전트** — `skills/tallycheck` 폴더를 에이전트의 스킬 폴더(예: 프로젝트의 `.agents/skills/`)에 복사합니다.
+**Agent Skills 표준을 읽는 다른 에이전트** (미검증) — `skills/tallycheck` 폴더를 에이전트의 스킬 폴더(예: 프로젝트의 `.agents/skills/`)에 복사합니다.
 
 Python 3.10 이상이 필요합니다(`python3 --version`). 따로 설치할 패키지는 없습니다.
 
@@ -150,9 +150,9 @@ $ python3 skills/tallycheck/scripts/tallycheck.py samples/units.md --format json
 | 스킬 없이 푼 작업(기준선) | 0/6 |
 | 평균 점수 차이(Δ) | +0.73 |
 | 가짜 스크립트를 잡아낸 비율 | 6/6 |
-| Codex CLI | 작업 6/6 통과 · 확인됨 |
+| Codex CLI | 미검증 |
 
-Claude Code 2.1.322 · sonnet · 케이스마다 3회 · 2026-11-17 측정 · codex-cli 0.154.0
+Claude Code 2.1.332 · sonnet · 케이스마다 3회 · 2026-11-26 측정 · codex-cli 0.154.0
 <!-- skill-eval:end -->
 
 ## 동작 방식
