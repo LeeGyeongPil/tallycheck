@@ -5,6 +5,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ## [Unreleased]
 
+## [0.1.5] - 2026-11-26
+
+### Added
+- Growth-rate sentences written with the word "percent" (`rose 50 percent from 1,000 to 1,500`) and with a direction noun after the figures (`from 200 to 100, a 50% decrease`) are now checked instead of silently skipped. Both forms still need `from A to B` in the sentence; `50 percent of users` and `up 50 percent` are not judged. Reports that used these phrasings may now show mismatches, so a CI run without `--exit-zero` can exit 1 where it passed before.
+
 ## [0.1.4] - 2026-11-17
 
 ### Fixed

@@ -1,6 +1,6 @@
 [project]
 name = "tallycheck-dev"
-version = "0.1.4"
+version = "0.1.5"
 description = "Development environment for the tallycheck agent skill (tests only; the skill script has no dependencies)."
 requires-python = ">=3.10"
 license = { text = "MIT" }
